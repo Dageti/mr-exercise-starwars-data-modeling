@@ -7,34 +7,81 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base):
+    __tablename__ = 'user'
+    
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    username = Column(String, unique=True, nullable=False)
+    firstname = Column(String, nullable=False)
+    lastname = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    
+    # relationships
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    favorites = relationship('Favorite', back_populates='user')
+    followers = relationship('Follower', back_populates='user_from', foreign_keys='Follower.user_from_id')
+
 
 class Planet(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+    __tablename__ = 'planet'
+    
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    name = Column(String, nullable=False)
+    climate = Column(String)
+    terrain = Column(String)
+    population = Column(Integer)
+
+
+class Character(Base):
+    __tablename__ = 'character'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    birth_year = Column(String)
+    gender = Column(String(20))
+    species = Column(String)
+
+
+class Vehicle(Base):
+    __tablename__ = 'vehicle'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    model = Column(String)
+    manufacturer = Column(String)
+    crew = Column(Integer)
+    passengers = Column(Integer)
+
+
+class Movie(Base):
+    __tablename__ = 'movie'
+    
+    id = Column(Integer, primary_key=True)
+    title = Column(String, nullable=False)
+    release_date = Column(Integer)
+    director = Column(String)
+    producer = Column(String)
+    episode_number = Column(Integer)
+
+
+class Favorite(Base):
+    __tablename__ = 'favorite'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    planet_id = Column(Integer, ForeignKey('planet.id'), nullable=True)
+    character_id = Column(Integer, ForeignKey('character.id'), nullable=True)
+    vehicle_id = Column(Integer, ForeignKey('vehicle.id'), nullable=True)
+    movie_id = Column(Integer, ForeignKey('movie.id'), nullable=True)
+    
+    # relationships
+
+    user = relationship('User', back_populates='favorites')
+    planet = relationship('Planet')
+    character = relationship('Character')
+    vehicle = relationship('Vehicle')
+    movie = relationship('Movie')
 
 
     def to_dict(self):
